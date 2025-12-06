@@ -1,37 +1,137 @@
 import { render } from 'preact';
-import { useState,useEffect } from "preact/hooks";
+import { useState, useEffect } from "preact/hooks";
 
 import { NumberInput, TextInput } from './TextInput';
 import './style.css';
 import { Item } from './Item';
+import { Sort } from './SortedEnum';
 import { useTransition } from 'preact/compat';
 
 export function App() {
 
-  const [items, setItems] = useState<Item[]>([
-    { id: 1, name: 'Tej', price: 350, quantity: 2, category: 'Élelmiszer', purchased: false, edited: false },
-    { id: 2, name: 'Alma', price: 500, quantity: 1, category: 'Élelmiszer', purchased: false, edited: false },
-    { id: 3, name: 'Méz', price: 3500, quantity: 3, category: 'Élelmiszer', purchased: false, edited: false }
-  ]);
-
   const [categoryTypes, setCategoryTypes] = useState(["kategoria1", "kategoria2"]);
   const [newCategoryType, setNewCategoryType] = useState("")
 
-   useEffect(() => {
+  const [items, setItems] = useState<Item[]>([
+    { id: 1, name: 'Tej', price: 350, quantity: 2, category: categoryTypes[0], purchased: false, edited: false },
+    { id: 2, name: 'Alma', price: 500, quantity: 1, category: categoryTypes[1], purchased: false, edited: false },
+    { id: 3, name: 'Méz', price: 3500, quantity: 3, category: categoryTypes[0], purchased: false, edited: false }
+  ]);
+
+
+
+  useEffect(() => {
     console.log("A kategóriák listája megváltozott:", categoryTypes);
   }, [categoryTypes]); // <--- A függőségi tömb miatt csak változáskor fut le
 
   const [newName, setNewName] = useState("")
   const [newPrice, setNewPrice] = useState(0)
   const [newQuantity, setNewQuantity] = useState(0)
-  const [newCategory, setNewCategory] = useState("")
+  const [newCategory, setNewCategory] = useState(categoryTypes[0])
 
   const [updatedName, setupdatedName] = useState("")
   const [updatedPrice, setupdatedPrice] = useState(0)
   const [updatedQuantity, setupdatedQuantity] = useState(0)
-  const [updatedCategory, setupdatedCategory] = useState("")
+  const [updatedCategory, setupdatedCategory] = useState(categoryTypes[0])
+
+  const [sortedState, setIsSorted] = useState<Sort[]>([Sort.NONE, Sort.NONE, Sort.NONE, Sort.NONE, Sort.NONE])
+
+  function sortByPurchased() {
+
+    if (sortedState[0] === Sort.NONE) {
+      setItems([...items].sort((a, b) => Number(a.purchased) - Number(b.purchased)));
+      setIsSorted([Sort.ASC, Sort.NONE, Sort.NONE, Sort.NONE, Sort.NONE])
+    }
 
 
+    else if (sortedState[0] === Sort.ASC) {
+
+      setItems([...items].sort((a, b) => Number(b.purchased) - Number(a.purchased)));
+      setIsSorted([Sort.DESC, Sort.NONE, Sort.NONE, Sort.NONE, Sort.NONE])
+    }
+
+    else sortById()
+
+  }
+
+
+  function sortByName() {
+
+    if (sortedState[1] === Sort.NONE) {
+      const sortedItems = [...items].sort((a, b) => {
+
+        return a.name.localeCompare(b.name);
+      });
+      setItems(sortedItems)
+      setIsSorted([Sort.NONE, Sort.ASC, Sort.NONE, Sort.NONE, Sort.NONE])
+    }
+
+    else if (sortedState[1] === Sort.ASC) {
+      const sortedItems = [...items].sort((a, b) => {
+
+        return b.name.localeCompare(a.name);
+      });
+      setItems(sortedItems)
+      setIsSorted([Sort.NONE, Sort.ASC, Sort.NONE, Sort.NONE, Sort.NONE])
+    }
+    else sortById()
+
+
+  }
+  function sortByPrice() {
+
+    if (sortedState[2] === Sort.NONE) {
+      setItems([...items].sort((a, b) => a.price - b.price));
+      setIsSorted([Sort.NONE, Sort.NONE, Sort.ASC, Sort.NONE, Sort.NONE])
+    }
+    else if (sortedState[2] === Sort.ASC) {
+      setItems([...items].sort((a, b) => b.price - a.price));
+      setIsSorted([Sort.NONE, Sort.NONE, Sort.DESC, Sort.NONE, Sort.NONE])
+    }
+    else sortById()
+
+  }
+
+
+  function sortByCategory() {
+
+    if (sortedState[3] === Sort.NONE) {
+      const sortedItems = [...items].sort((a, b) => {
+
+        return a.category.localeCompare(b.category);
+      });
+      setItems(sortedItems)
+      setIsSorted([Sort.NONE, Sort.NONE, Sort.NONE, Sort.ASC, Sort.NONE])
+    }
+    else if (sortedState[3] === Sort.ASC) {
+      const sortedItems = [...items].sort((a, b) => {
+
+        return b.category.localeCompare(a.category);
+      });
+      setItems(sortedItems)
+      setIsSorted([Sort.NONE, Sort.NONE, Sort.NONE, Sort.DESC, Sort.NONE])
+    }
+    else sortById()
+  }
+
+  function sortBySumPrice() {
+
+    if (sortedState[4] === Sort.NONE) {
+      setItems([...items].sort((a, b) => a.price * a.quantity - b.price * b.quantity));
+      setIsSorted([Sort.NONE, Sort.NONE, Sort.NONE, Sort.NONE, Sort.ASC])
+    }
+    else if (sortedState[4] === Sort.ASC) {
+      setItems([...items].sort((a, b) => b.price * b.quantity - a.price * a.quantity));
+      setIsSorted([Sort.NONE, Sort.NONE, Sort.NONE, Sort.NONE, Sort.DESC])
+    }
+    else sortById()
+
+  }
+
+  function sortById() {
+    setItems([...items].sort((a, b) => a.id - b.id));
+    setIsSorted([Sort.NONE, Sort.NONE, Sort.NONE, Sort.NONE, Sort.NONE])
+  }
 
 
   function addItem(e) {
@@ -42,12 +142,11 @@ export function App() {
     }
     setItems([...items, newItem])
   }
-  function addCategory(e)
-  {
+  function addCategory(e) {
     e.preventDefault();
-    if(!newCategoryType) return;
-    setCategoryTypes([...categoryTypes,newCategoryType])
-    
+    if (!newCategoryType || categoryTypes.includes(newCategoryType)) return;
+    setCategoryTypes([...categoryTypes, newCategoryType])
+
   }
 
   function deleteItem(id: number) {
@@ -56,9 +155,10 @@ export function App() {
   }
   function editItem(id: number) {
     const newlist = items.map(item => {
+
       if (item.id === id)
-        return { ...item, edited: !item.edited }
-      return item
+        return { ...item, edited: true }
+      return { ...item, edited: false }
     })
     setItems(newlist)
   }
@@ -107,12 +207,21 @@ export function App() {
             <TextInput value={updatedName} onChange={setupdatedName} placeholder='Termék neve' ></TextInput>
             <NumberInput value={updatedPrice} onChange={(val) => setupdatedPrice(Number(val))} placeholder='Termék ára' ></NumberInput>
             <NumberInput value={updatedQuantity} onChange={(val) => setupdatedQuantity(Number(val))} placeholder='Vásárlandó mennyiség' ></NumberInput>
-            <TextInput value={updatedCategory} onChange={setupdatedCategory} placeholder='Termék kategóriája' ></TextInput>
+
+            <select name="category" value={updatedCategory} onChange={(e) => setupdatedCategory(e.currentTarget.value)} >
+              {categoryTypes.map(cat => {
+                return <option value={cat}>{cat}</option>
+              })}
+
+            </select>
             <button type="submit" class="btn-primary">Kész</button>
           </div>
 
         </form>
+
       </div>
+
+
 
     )
   }
@@ -132,6 +241,11 @@ export function App() {
           <span class="item-info">
             {item.quantity} db x {item.price} Ft
           </span>
+
+        </div>
+        <div class="item-details">
+          <span class="item-name">{item.price} Ft</span>
+
 
         </div>
         <div class="item-details">
@@ -159,14 +273,12 @@ export function App() {
             <TextInput value={newName} onChange={setNewName} placeholder='Termék neve' ></TextInput>
             <NumberInput value={newPrice} onChange={(val) => setNewPrice(Number(val))} placeholder='Termék ára' ></NumberInput>
             <NumberInput value={newQuantity} onChange={(val) => setNewQuantity(Number(val))} placeholder='Vásárlandó mennyiség' ></NumberInput>
-            <TextInput value={newCategory} onChange={setNewCategory} placeholder='Termék kategóriája' ></TextInput>
-            
-            <select name="category" value={newCategory} onChange={(e)=> setNewCategory(e.currentTarget.value)} >
-              {categoryTypes.map(cat=>{
-               return <option value={cat}>{cat}</option>
+            <select name="category" value={newCategory} onChange={(e) => setNewCategory(e.currentTarget.value)} >
+              {categoryTypes.map(cat => {
+                return <option value={cat}>{cat}</option>
               })}
-          
-          </select>
+
+            </select>
             <button type="submit" class="btn-primary">Hozzáadás (+)</button>
           </div>
 
@@ -180,6 +292,7 @@ export function App() {
           </div>
 
         </form>
+        <button onClick={sortByName}>asdsad</button>
 
       </div>
 
@@ -188,7 +301,29 @@ export function App() {
 
 
       <div class="list-container">
-        {items.length === 0 ? <p class="empty-msg">A lista üres.</p> : null}
+        {items.length === 0 ? <h1 class="empty-msg">A lista üres.</h1> : null}
+
+        <div class="header-row">
+
+
+          <button onClick={sortByPurchased}>
+            Megvásárolt-e  {sortedState[0] === Sort.ASC ? <span>▲</span> : sortedState[0] === Sort.DESC ? <span>▼</span> : null}
+          </button >
+          <button onClick={sortByName}>
+            Név {sortedState[1] === Sort.ASC ? <span>▲</span> : sortedState[1] === Sort.DESC ? <span>▼</span> : null}
+          </button>
+          <button onClick={sortByPrice}>
+            Egységár {sortedState[2] === Sort.ASC ? <span>▲</span> : sortedState[2] === Sort.DESC ? <span>▼</span> : null}
+          </button>
+
+          <button onClick={sortByCategory}>
+            Kategória {sortedState[3] === Sort.ASC ? <span>▲</span> : sortedState[3] === Sort.DESC ? <span>▼</span> : null}
+          </button>
+          <button onClick={sortBySumPrice}>
+            Ár {sortedState[4] === Sort.ASC ? <span>▲</span> : sortedState[4] === Sort.DESC ? <span>▼</span> : null}
+          </button>
+
+        </div>
 
         {items.map((item) => { return item.edited ? showItemEdit(item) : showItemData(item) }
         )}

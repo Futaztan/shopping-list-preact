@@ -105,3 +105,33 @@ input, select {
   box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 .total-price { font-weight: bold; color: #4cd137; }
+
+/* 1. A tároló (sor) stílusa */
+.header-row {
+  display: flex;           /* Flexbox bekapcsolása */
+  width: 100%;             /* A teljes szélességet kihasználja */
+  gap: 10px;               /* Kis hézag a gombok között */
+  margin-bottom: 15px;     /* Távolság a lista és a gombok között */
+}
+
+/* 2. A gombok stílusa a soron belül */
+.header-row button {
+  flex: 1;                 /* A VARÁZSLAT: Minden gomb egyenlően elosztja a helyet */
+  
+  /* Egy kis szépítés (opcionális) */
+  padding: 10px;
+  cursor: pointer;
+ 
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  
+  /* Szöveg középre igazítása a gombon belül */
+  display: flex;
+  justify-content: center; 
+  align-items: center;
+}
+
+.header-row button:hover {
+  background-color: #d0d0d0; /* Kicsit sötétebb, ha ráviszed az egeret */
+}
