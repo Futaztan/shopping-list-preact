@@ -10,17 +10,33 @@ import { useTransition } from 'preact/compat';
 import { EditItemRow } from './EditItemRow';
 import { TotalBar } from './TotalBar';
 import { useSorting } from './useSorting';
+import { SoundType, useSounds } from './Sounds';
+import { TopMenu } from './TopMenu';
+import { SortingMenu } from './SortingMenu';
 
 export function App() {
 
   const [categoryTypes, setCategoryTypes] = useState(["kategoria1", "kategoria2"]);
   const [newCategoryType, setNewCategoryType] = useState("")
 
-  const [items, setItems] = useState<Item[]>([
-    { id: 1, name: 'Tej', price: 350, quantity: 2, category: categoryTypes[0], purchased: false, edited: false, hidden: false },
-    { id: 2, name: 'Alma', price: 500, quantity: 1, category: categoryTypes[1], purchased: false, edited: false, hidden: false },
-    { id: 3, name: 'Méz', price: 3500, quantity: 3, category: categoryTypes[0], purchased: false, edited: false, hidden: false }
-  ]);
+
+  const [items, setItems] = useState<Item[]>(() => {
+    const saved = localStorage.getItem("shopping-list-data");
+
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error("Hiba a betöltéskor:", e);
+        return [];
+      }
+    }
+    return [
+      { id: 1, name: 'Tej', price: 350, quantity: 2, category: categoryTypes[0], purchased: false, edited: false, hidden: false },
+      { id: 2, name: 'Alma', price: 500, quantity: 1, category: categoryTypes[1], purchased: false, edited: false, hidden: false },
+      { id: 3, name: 'Méz', price: 3500, quantity: 3, category: categoryTypes[0], purchased: false, edited: false, hidden: false }
+    ];
+  });
 
   const {
     sortedState,
@@ -31,10 +47,12 @@ export function App() {
     sortBySumPrice
   } = useSorting(items, setItems);
 
+  const { playSound, toggleMute, isMuted } = useSounds();
+
 
   useEffect(() => {
-    console.log("A kategóriák listája megváltozott:", categoryTypes);
-  }, [categoryTypes]); // <--- A függőségi tömb miatt csak változáskor fut le
+    localStorage.setItem("shopping-list-data", JSON.stringify(items));
+  }, [items]);
 
   const [newName, setNewName] = useState("")
   const [newPrice, setNewPrice] = useState(0)
@@ -48,7 +66,7 @@ export function App() {
 
 
 
-  const [searchedAttribute, setSearchedAttribute] = useState("")
+  const [searchedAttribute, setSearchedAttribute] = useState("Név")
   const [searchedText, setSearchedText] = useState("")
   const [searchOperator, setSearchOperator] = useState("=");
 
@@ -58,7 +76,6 @@ export function App() {
 
     if (!input) setIsFiltered(false)
     else setIsFiltered(true)
-    const foundItems: Item[] = []
     switch (attribute) {
       case "Név":
         {
@@ -144,13 +161,14 @@ export function App() {
   }
 
 
-  function addItem(e) {
+  function addItem(e: SubmitEvent) {
     e.preventDefault();
     if (!newName || !newPrice) return;
     const newItem: Item = {
       name: newName, price: newPrice, quantity: newQuantity, category: newCategory, id: Date.now(), purchased: false, edited: false, hidden: false
     }
     setItems([...items, newItem])
+    playSound(SoundType.ADD);
   }
   function addCategory(e) {
     e.preventDefault();
@@ -162,6 +180,7 @@ export function App() {
   function deleteItem(id: number) {
 
     setItems(items.filter((item) => item.id !== id))
+    playSound(SoundType.DELETE);
   }
   function editItem(id: number) {
     const newlist = items.map(item => {
@@ -217,91 +236,51 @@ export function App() {
   }
 
 
-
-
   return (
+
     <div class="container">
+
       <h1>🛒 Bevásárlólista</h1>
-      <div class="card form-card">
-        <h2>Új elem hozzáadása</h2>
-        <form onSubmit={addItem} class="add-form">
-          <div class="row">
-            <TextInput value={newName} onChange={setNewName} placeholder='Termék neve' ></TextInput>
-            <NumberInput value={newPrice} onChange={(val) => setNewPrice(Number(val))} placeholder='Termék ára' ></NumberInput>
-            <NumberInput value={newQuantity} onChange={(val) => setNewQuantity(Number(val))} placeholder='Vásárlandó mennyiség' ></NumberInput>
-            <select name="category" value={newCategory} onChange={(e) => setNewCategory(e.currentTarget.value)} >
-              {categoryTypes.map(cat => {
-                return <option value={cat}>{cat}</option>
-              })}
 
-            </select>
-            <button type="submit" class="btn-primary">Hozzáadás (+)</button>
-          </div>
+      <TopMenu
+        // Audio
+        isMuted={isMuted}
+        toggleMute={toggleMute}
 
-        </form>
-        <h2>Új kategória hozzáadása</h2>
-        <form onSubmit={addCategory} class="add-form">
-          <div class="row">
-            <TextInput value={newCategoryType} onChange={setNewCategoryType} placeholder='Kategória neve' ></TextInput>
+        // Add Item
+        newName={newName} setNewName={setNewName}
+        newPrice={newPrice} setNewPrice={setNewPrice}
+        newQuantity={newQuantity} setNewQuantity={setNewQuantity}
+        newCategory={newCategory} setNewCategory={setNewCategory}
+        categoryTypes={categoryTypes}
+        addItem={addItem}
 
-            <button type="submit" class="btn-primary">Hozzáadás (+)</button>
-          </div>
+        // Add Category
+        newCategoryType={newCategoryType} setNewCategoryType={setNewCategoryType}
+        addCategory={addCategory}
 
-        </form>
-
-        <h2>Keresés</h2>
-        <div class="row">
-          <TextInput value={searchedText} onChange={setSearchedText} placeholder='Keresés...' ></TextInput>
-          <select value={searchedAttribute} onChange={(e) => setSearchedAttribute(e.currentTarget.value)} >
-            <option value="Név">Név</option>
-            <option value="Egységár">Egységár</option>
-            <option value="Kategória">Kategória</option>
-            <option value="Ár">Ár</option>
-          </select>
-
-          {searchedAttribute === "Egységár" || searchedAttribute === "Ár" ?
-            <select value={searchOperator} onChange={(e) => setSearchOperator(e.currentTarget.value)}>
-              <option value="<">&lt;</option>
-              <option value="=">=</option>
-              <option value=">">&gt;</option>
-
-            </select>
-            : null
-          }
-          <button onClick={() => search(searchedAttribute, searchedText)} class="btn-primary">Keresés</button>
-        </div>
-
-
-      </div>
-
-
+        // Search
+        searchedText={searchedText} setSearchedText={setSearchedText}
+        searchedAttribute={searchedAttribute} setSearchedAttribute={setSearchedAttribute}
+        searchOperator={searchOperator} setSearchOperator={setSearchOperator}
+        search={search}
+      />
 
 
 
       <div class="list-container">
-        {items.length === 0 ? <h1 class="empty-msg">A lista üres.</h1> : null}
+        {items.length === 0 ? <h1 class="empty-msg">A lista üres.</h1> : 
+        <SortingMenu
+          onSortByPurchased={sortByPurchased}
+          onSortByName={sortByName}
+          onSortByCategory={sortByCategory}
+          onSortByPrice={sortByPrice}
+          onSortBySumPrice={sortBySumPrice}
+          sortedState={sortedState}
+        />
+        }
 
-        <div class="header-row">
 
-
-          <button onClick={sortByPurchased}>
-            Megvásárolt-e  {sortedState[0] === Sort.ASC ? <span>▲</span> : sortedState[0] === Sort.DESC ? <span>▼</span> : null}
-          </button >
-          <button onClick={sortByName}>
-            Név {sortedState[1] === Sort.ASC ? <span>▲</span> : sortedState[1] === Sort.DESC ? <span>▼</span> : null}
-          </button>
-          <button onClick={sortByPrice}>
-            Egységár {sortedState[2] === Sort.ASC ? <span>▲</span> : sortedState[2] === Sort.DESC ? <span>▼</span> : null}
-          </button>
-
-          <button onClick={sortByCategory}>
-            Kategória {sortedState[3] === Sort.ASC ? <span>▲</span> : sortedState[3] === Sort.DESC ? <span>▼</span> : null}
-          </button>
-          <button onClick={sortBySumPrice}>
-            Ár {sortedState[4] === Sort.ASC ? <span>▲</span> : sortedState[4] === Sort.DESC ? <span>▼</span> : null}
-          </button>
-
-        </div>
 
         {items.map((item) => {
           return item.edited ?

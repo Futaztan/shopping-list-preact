@@ -16,7 +16,9 @@ body {
   margin: 0 auto;
   padding: 20px;
 }
-
+img{
+  float: right;
+}
 h1 { text-align: center; color: var(--primary); }
 
 .card {
