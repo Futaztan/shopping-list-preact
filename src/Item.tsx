@@ -6,4 +6,5 @@ export type Item = {
   category: string;
   purchased: boolean;
   edited: boolean;
+  hidden: boolean
 }

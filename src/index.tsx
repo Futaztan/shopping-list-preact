@@ -5,7 +5,11 @@ import { NumberInput, TextInput } from './TextInput';
 import './style.css';
 import { Item } from './Item';
 import { Sort } from './SortedEnum';
+import { ItemRow } from './ItemRow';
 import { useTransition } from 'preact/compat';
+import { EditItemRow } from './EditItemRow';
+import { TotalBar } from './TotalBar';
+import { useSorting } from './useSorting';
 
 export function App() {
 
@@ -13,11 +17,19 @@ export function App() {
   const [newCategoryType, setNewCategoryType] = useState("")
 
   const [items, setItems] = useState<Item[]>([
-    { id: 1, name: 'Tej', price: 350, quantity: 2, category: categoryTypes[0], purchased: false, edited: false },
-    { id: 2, name: 'Alma', price: 500, quantity: 1, category: categoryTypes[1], purchased: false, edited: false },
-    { id: 3, name: 'Méz', price: 3500, quantity: 3, category: categoryTypes[0], purchased: false, edited: false }
+    { id: 1, name: 'Tej', price: 350, quantity: 2, category: categoryTypes[0], purchased: false, edited: false, hidden: false },
+    { id: 2, name: 'Alma', price: 500, quantity: 1, category: categoryTypes[1], purchased: false, edited: false, hidden: false },
+    { id: 3, name: 'Méz', price: 3500, quantity: 3, category: categoryTypes[0], purchased: false, edited: false, hidden: false }
   ]);
 
+  const {
+    sortedState,
+    sortByPurchased,
+    sortByName,
+    sortByPrice,
+    sortByCategory,
+    sortBySumPrice
+  } = useSorting(items, setItems);
 
 
   useEffect(() => {
@@ -34,103 +46,101 @@ export function App() {
   const [updatedQuantity, setupdatedQuantity] = useState(0)
   const [updatedCategory, setupdatedCategory] = useState(categoryTypes[0])
 
-  const [sortedState, setIsSorted] = useState<Sort[]>([Sort.NONE, Sort.NONE, Sort.NONE, Sort.NONE, Sort.NONE])
 
-  function sortByPurchased() {
 
-    if (sortedState[0] === Sort.NONE) {
-      setItems([...items].sort((a, b) => Number(a.purchased) - Number(b.purchased)));
-      setIsSorted([Sort.ASC, Sort.NONE, Sort.NONE, Sort.NONE, Sort.NONE])
+  const [searchedAttribute, setSearchedAttribute] = useState("")
+  const [searchedText, setSearchedText] = useState("")
+  const [searchOperator, setSearchOperator] = useState("=");
+
+  const [isFiltered, setIsFiltered] = useState(false)
+
+  function search(attribute: string, input: string) {
+
+    if (!input) setIsFiltered(false)
+    else setIsFiltered(true)
+    const foundItems: Item[] = []
+    switch (attribute) {
+      case "Név":
+        {
+          const newList = items.map(item => {
+            let isMatch = false;
+            isMatch = item.name.toLowerCase().includes(input.toLowerCase())
+            return { ...item, hidden: !isMatch };
+          });
+          setItems(newList)
+
+        }
+
+        break;
+
+      case "Egységár":
+        {
+          const inputNumber = Number(input);
+          const newList = items.map(item => {
+            let isMatch = false;
+
+            switch (searchOperator) {
+              case "<":
+                isMatch = item.price < inputNumber;
+                break;
+              case "=":
+                isMatch = item.price === inputNumber;
+                break;
+              case ">":
+                isMatch = item.price > inputNumber;
+                break;
+
+            }
+
+            return { ...item, hidden: !isMatch };
+          });
+          setItems(newList)
+        }
+
+        break;
+
+      case "Kategória":
+        {
+          const newList = items.map(item => {
+            let isMatch = false;
+            isMatch = item.category.toLowerCase().includes(input.toLowerCase())
+            return { ...item, hidden: !isMatch };
+          });
+          setItems(newList)
+
+        }
+        break;
+
+      case "Ár":
+        {
+          const inputNumber = Number(input);
+          const newList = items.map(item => {
+            let isMatch = false;
+
+            switch (searchOperator) {
+              case "<":
+                isMatch = item.price * item.quantity < inputNumber;
+                break;
+              case "=":
+                isMatch = item.price * item.quantity === inputNumber;
+                break;
+              case ">":
+                isMatch = item.price * item.quantity > inputNumber;
+                break;
+
+            }
+
+            return { ...item, hidden: !isMatch };
+          });
+          setItems(newList)
+        }
+
+        break;
+
+
+      default: throw new Error("error");
+
     }
-
-
-    else if (sortedState[0] === Sort.ASC) {
-
-      setItems([...items].sort((a, b) => Number(b.purchased) - Number(a.purchased)));
-      setIsSorted([Sort.DESC, Sort.NONE, Sort.NONE, Sort.NONE, Sort.NONE])
-    }
-
-    else sortById()
-
-  }
-
-
-  function sortByName() {
-
-    if (sortedState[1] === Sort.NONE) {
-      const sortedItems = [...items].sort((a, b) => {
-
-        return a.name.localeCompare(b.name);
-      });
-      setItems(sortedItems)
-      setIsSorted([Sort.NONE, Sort.ASC, Sort.NONE, Sort.NONE, Sort.NONE])
-    }
-
-    else if (sortedState[1] === Sort.ASC) {
-      const sortedItems = [...items].sort((a, b) => {
-
-        return b.name.localeCompare(a.name);
-      });
-      setItems(sortedItems)
-      setIsSorted([Sort.NONE, Sort.ASC, Sort.NONE, Sort.NONE, Sort.NONE])
-    }
-    else sortById()
-
-
-  }
-  function sortByPrice() {
-
-    if (sortedState[2] === Sort.NONE) {
-      setItems([...items].sort((a, b) => a.price - b.price));
-      setIsSorted([Sort.NONE, Sort.NONE, Sort.ASC, Sort.NONE, Sort.NONE])
-    }
-    else if (sortedState[2] === Sort.ASC) {
-      setItems([...items].sort((a, b) => b.price - a.price));
-      setIsSorted([Sort.NONE, Sort.NONE, Sort.DESC, Sort.NONE, Sort.NONE])
-    }
-    else sortById()
-
-  }
-
-
-  function sortByCategory() {
-
-    if (sortedState[3] === Sort.NONE) {
-      const sortedItems = [...items].sort((a, b) => {
-
-        return a.category.localeCompare(b.category);
-      });
-      setItems(sortedItems)
-      setIsSorted([Sort.NONE, Sort.NONE, Sort.NONE, Sort.ASC, Sort.NONE])
-    }
-    else if (sortedState[3] === Sort.ASC) {
-      const sortedItems = [...items].sort((a, b) => {
-
-        return b.category.localeCompare(a.category);
-      });
-      setItems(sortedItems)
-      setIsSorted([Sort.NONE, Sort.NONE, Sort.NONE, Sort.DESC, Sort.NONE])
-    }
-    else sortById()
-  }
-
-  function sortBySumPrice() {
-
-    if (sortedState[4] === Sort.NONE) {
-      setItems([...items].sort((a, b) => a.price * a.quantity - b.price * b.quantity));
-      setIsSorted([Sort.NONE, Sort.NONE, Sort.NONE, Sort.NONE, Sort.ASC])
-    }
-    else if (sortedState[4] === Sort.ASC) {
-      setItems([...items].sort((a, b) => b.price * b.quantity - a.price * a.quantity));
-      setIsSorted([Sort.NONE, Sort.NONE, Sort.NONE, Sort.NONE, Sort.DESC])
-    }
-    else sortById()
-
-  }
-
-  function sortById() {
-    setItems([...items].sort((a, b) => a.id - b.id));
-    setIsSorted([Sort.NONE, Sort.NONE, Sort.NONE, Sort.NONE, Sort.NONE])
   }
 
 
@@ -138,7 +148,7 @@ export function App() {
     e.preventDefault();
     if (!newName || !newPrice) return;
     const newItem: Item = {
-      name: newName, price: newPrice, quantity: newQuantity, category: newCategory, id: Date.now(), purchased: false, edited: false
+      name: newName, price: newPrice, quantity: newQuantity, category: newCategory, id: Date.now(), purchased: false, edited: false, hidden: false
     }
     setItems([...items, newItem])
   }
@@ -170,13 +180,23 @@ export function App() {
     })
     setItems(newlist)
   }
-  function totalAmount(): number {
+
+
+  function totalAmount(onlyVisibleItems: boolean): number {
     let sum: number = 0
     items.forEach(item => {
-      sum += item.price * item.quantity
+
+      if (onlyVisibleItems) {
+        if (!item.hidden) {
+          sum += item.price * item.quantity
+        }
+      }
+      else sum += item.price * item.quantity
+
     });
     return sum
   }
+
 
   function updateItem(id: number) {
     const newlist = items.map(item => {
@@ -196,72 +216,8 @@ export function App() {
 
   }
 
-  function showItemEdit(item: Item) {
 
 
-
-    return (
-      <div class="card form-card">
-        <form onSubmit={(e) => { e.preventDefault(); updateItem(item.id) }}>
-          <div class="row">
-            <TextInput value={updatedName} onChange={setupdatedName} placeholder='Termék neve' ></TextInput>
-            <NumberInput value={updatedPrice} onChange={(val) => setupdatedPrice(Number(val))} placeholder='Termék ára' ></NumberInput>
-            <NumberInput value={updatedQuantity} onChange={(val) => setupdatedQuantity(Number(val))} placeholder='Vásárlandó mennyiség' ></NumberInput>
-
-            <select name="category" value={updatedCategory} onChange={(e) => setupdatedCategory(e.currentTarget.value)} >
-              {categoryTypes.map(cat => {
-                return <option value={cat}>{cat}</option>
-              })}
-
-            </select>
-            <button type="submit" class="btn-primary">Kész</button>
-          </div>
-
-        </form>
-
-      </div>
-
-
-
-    )
-  }
-
-  function showItemData(item: Item) {
-    return (
-      <div key={item.id} class={`item-card ${item.purchased ? 'purchased' : ''}`}>
-        <input
-          type="checkbox"
-          checked={item.purchased}
-          onInput={() => togglePurchased(item.id)}
-          class="checkbox"
-        />
-
-        <div class="item-details">
-          <span class="item-name">{item.name}</span>
-          <span class="item-info">
-            {item.quantity} db x {item.price} Ft
-          </span>
-
-        </div>
-        <div class="item-details">
-          <span class="item-name">{item.price} Ft</span>
-
-
-        </div>
-        <div class="item-details">
-          <span class="item-name">{item.category}</span>
-        </div>
-        <div class="item-price">
-          {item.quantity * item.price} Ft
-        </div>
-
-        <div class="actions">
-          <button onClick={() => startEditing(item)} class="btn-edit" title="Szerkesztés">✏️</button>
-          <button onClick={() => deleteItem(item.id)} class="btn-delete" title="Törlés">🗑️</button>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div class="container">
@@ -292,7 +248,29 @@ export function App() {
           </div>
 
         </form>
-        <button onClick={sortByName}>asdsad</button>
+
+        <h2>Keresés</h2>
+        <div class="row">
+          <TextInput value={searchedText} onChange={setSearchedText} placeholder='Keresés...' ></TextInput>
+          <select value={searchedAttribute} onChange={(e) => setSearchedAttribute(e.currentTarget.value)} >
+            <option value="Név">Név</option>
+            <option value="Egységár">Egységár</option>
+            <option value="Kategória">Kategória</option>
+            <option value="Ár">Ár</option>
+          </select>
+
+          {searchedAttribute === "Egységár" || searchedAttribute === "Ár" ?
+            <select value={searchOperator} onChange={(e) => setSearchOperator(e.currentTarget.value)}>
+              <option value="<">&lt;</option>
+              <option value="=">=</option>
+              <option value=">">&gt;</option>
+
+            </select>
+            : null
+          }
+          <button onClick={() => search(searchedAttribute, searchedText)} class="btn-primary">Keresés</button>
+        </div>
+
 
       </div>
 
@@ -325,15 +303,21 @@ export function App() {
 
         </div>
 
-        {items.map((item) => { return item.edited ? showItemEdit(item) : showItemData(item) }
+        {items.map((item) => {
+          return item.edited ?
+            <EditItemRow item={item} updatedName={updatedName} setUpdatedName={setupdatedName}
+              updatedPrice={updatedPrice} setUpdatedPrice={setupdatedPrice}
+              updatedQuantity={updatedQuantity} setUpdatedQuantity={setupdatedQuantity}
+              updatedCategory={updatedCategory} setUpdatedCategory={setupdatedCategory}
+              categoryTypes={categoryTypes} onSave={updateItem} />
+            :
+            <ItemRow key={item.id} item={item} onTogglePurchased={togglePurchased} onStartEditing={startEditing} onDelete={deleteItem} />
+        }
         )}
       </div>
 
+      <TotalBar isFiltered={isFiltered} filteredTotal={totalAmount(false)} grandTotal={totalAmount(true)} />
 
-      <div class="total-bar">
-        <span>Végösszeg:</span>
-        <span class="total-price">{totalAmount()} Ft</span>
-      </div>
     </div>
   );
 }
