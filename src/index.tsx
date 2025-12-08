@@ -1,7 +1,7 @@
 import { render } from 'preact';
 import { useState } from "preact/hooks";
 
-import './style.css';
+import './css/style.css';
 import { Item } from './types/Item';
 import { ItemRow } from './components/ItemRow';
 import { EditItemRow } from './components/EditItemRow';

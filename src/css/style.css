@@ -1,8 +1,14 @@
 :root {
-  --primary: #4a90e2;
-  --bg: #f4f4f9;
+  /* FŐ VÁLTOZÁS: Kék helyett Lila */
+  --primary: #5e3072; /* Egy szép, modern lila */
+  --primary-hover: #3d1c4d; /* Sötétebb lila a gombok hover állapotához */
+  
+  /* Háttér: Enyhén szürkés, nem kékes */
+  --bg: #f3f3f3; 
+  
   --card-bg: #ffffff;
   --text: #333;
+  --gray-light: #e0e0e0; /* Gomboknak és inaktív elemeknek */
 }
 
 body {
@@ -23,7 +29,7 @@ img {
 
 h1 {
   text-align: center;
-  color: var(--primary);
+  color: var(--primary); /* Lila cím */
 }
 
 .card {
@@ -32,7 +38,6 @@ h1 {
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
-
 }
 
 /* Form Styles */
@@ -43,26 +48,22 @@ h1 {
 }
 
 .row {
-
   display: flex;
   justify-content: center;
-  /* Ez húzza középre az elemeket vízszintesen */
   align-items: center;
-  /* Ez igazítja őket függőlegesen középre */
   gap: 10px;
-  /* Távolság az inputok között */
   flex-wrap: wrap;
-  /* Fontos! Ha nem férnek el egy sorban (pl. mobilon), törje a sort */
 }
 
 input,
 select {
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid #ccc; /* Kicsit semlegesebb szürke keret */
   border-radius: 6px;
   flex: 1;
 }
 
+/* Lila gombok */
 .btn-primary {
   background-color: var(--primary);
   color: white;
@@ -71,10 +72,12 @@ select {
   border-radius: 6px;
   cursor: pointer;
   font-weight: bold;
+  transition: background-color 0.2s;
 }
 
 .btn-primary:hover {
-  opacity: 0.9;
+  background-color: var(--primary-hover); /* Sötétebb lila hoverkor */
+  opacity: 1; /* Opacity helyett színátmenet szebb */
 }
 
 /* List Styles */
@@ -94,12 +97,14 @@ select {
   gap: 15px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   transition: all 0.2s;
+  border-left: 5px solid var(--primary); /* Egy kis lila díszítés a kártyák szélén */
 }
 
-/* Ha meg van véve */
+/* Ha meg van véve - Zöld helyett SZÜRKE a témához */
 .item-card.purchased {
-  background-color: #e8f5e9;
-  opacity: 0.7;
+  background-color: #f0f0f0; /* Szürke háttér */
+  opacity: 0.6;
+  border-left-color: #999; /* A csík is szürke lesz */
 }
 
 .item-card.purchased .item-name {
@@ -111,6 +116,7 @@ select {
   width: 20px;
   height: 20px;
   cursor: pointer;
+  accent-color: var(--primary); /* A pipa színe is lila legyen */
 }
 
 .item-details {
@@ -131,7 +137,7 @@ select {
 
 .item-price {
   font-weight: bold;
-  color: var(--primary);
+  color: var(--primary); /* Az ár is lila */
 }
 
 .actions {
@@ -151,12 +157,12 @@ select {
 
 .btn-delete:hover {
   transform: scale(1.2);
-  color: red;
+  color: #c0392b; /* Kicsit sötétebb piros */
 }
 
 .btn-edit:hover {
   transform: scale(1.2);
-  color: orange;
+  color: var(--primary); /* Narancs helyett lila az edit */
 }
 
 .hidden {
@@ -169,7 +175,7 @@ select {
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: #333;
+  background-color: #2c3e50; /* Sötétszürke/Kékesfekete sáv */
   color: white;
   padding: 15px 30px;
   border-radius: 50px;
@@ -177,45 +183,41 @@ select {
   gap: 20px;
   font-size: 1.2rem;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  z-index: 100; /* Hogy biztosan minden felett legyen */
 }
 
 .total-price {
-  font-weight: bold;
-  color: #4cd137;
+font-weight: bold;
+color: #4cd137;
 }
 
-/* 1. A tároló (sor) stílusa */
+/* Header Row (Rendezés gombok) */
 .header-row {
   display: flex;
-  /* Flexbox bekapcsolása */
   width: 100%;
-  /* A teljes szélességet kihasználja */
   gap: 10px;
-  /* Kis hézag a gombok között */
   margin-bottom: 15px;
-  /* Távolság a lista és a gombok között */
 }
 
-/* 2. A gombok stílusa a soron belül */
 .header-row button {
-  flex: 1;
-  /* A VARÁZSLAT: Minden gomb egyenlően elosztja a helyet */
+flex: 1;
 
-  /* Egy kis szépítés (opcionális) */
-  padding: 10px;
-  cursor: pointer;
 
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
+/* Egy kis szépítés (opcionális) */
+padding: 10px;
+cursor: pointer;
 
-  /* Szöveg középre igazítása a gombon belül */
-  display: flex;
-  justify-content: center;
-  align-items: center;
+border: none;
+border-radius: 6px;
+font-weight: bold;
+
+/* Szöveg középre igazítása a gombon belül */
+display: flex;
+justify-content: center;
+align-items: center;
 }
 
 .header-row button:hover {
-  background-color: #d0d0d0;
-  /* Kicsit sötétebb, ha ráviszed az egeret */
+background-color: #141111;
+/* Kicsit sötétebb, ha ráviszed az egeret */
 }
