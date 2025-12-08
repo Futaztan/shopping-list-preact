@@ -1,4 +1,4 @@
-import { Item } from "./Item";
+import { Item } from "../types/Item";
 
 type ItemRowProps = {
   item: Item;

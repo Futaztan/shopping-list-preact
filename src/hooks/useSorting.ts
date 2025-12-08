@@ -1,7 +1,7 @@
 import { useState } from 'preact/hooks';
 
-import { Item } from './Item';
-import { Sort } from './SortedEnum';
+import { Item } from '../types/Item';
+import { Sort } from '../types/SortedEnum';
 
 export function useSorting(items: Item[], setItems: (items: Item[]) => void) {
 

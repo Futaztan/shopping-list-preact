@@ -1,6 +1,7 @@
 
-import { Item } from "./Item";
-import { NumberInput, TextInput } from "./TextInput";
+import { Item } from "../types/Item";
+import { NumberInput } from "./ui/NumberInput";
+import {  TextInput } from "./ui/TextInput";
 
 type EditItemRowProps = {
   item: Item;
@@ -13,7 +14,7 @@ type EditItemRowProps = {
   updatedCategory: string;
   setUpdatedCategory: (val: string) => void;
   categoryTypes: string[];
-  onSave: (id: number) => void;
+  onSave: (id: number, item: Partial<Item>) => void;
 };
 
 
@@ -21,7 +22,7 @@ type EditItemRowProps = {
 export function EditItemRow({ item, updatedName, setUpdatedName, updatedPrice, setUpdatedPrice, updatedQuantity, setUpdatedQuantity, updatedCategory, setUpdatedCategory, categoryTypes, onSave }: EditItemRowProps) {
   return (
     <div class="card form-card">
-      <form onSubmit={(e) => { e.preventDefault(); onSave(item.id) }}>
+      <form onSubmit={(e) => { e.preventDefault(); onSave(item.id, { name: updatedName, price: updatedPrice, quantity: updatedQuantity, category: updatedCategory }) }}>
         <div class="row">
           <TextInput value={updatedName} onChange={setUpdatedName} placeholder='Termék neve' ></TextInput>
           <NumberInput value={updatedPrice} onChange={(val) => setUpdatedPrice(Number(val))} placeholder='Termék ára' ></NumberInput>

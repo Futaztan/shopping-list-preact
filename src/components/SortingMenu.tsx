@@ -1,4 +1,4 @@
-import { Sort } from "./SortedEnum"
+import { Sort } from "../types/SortedEnum"
 
 type SortingMenuProps = {
 
