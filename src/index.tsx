@@ -13,10 +13,13 @@ import { SortingMenu } from './components/SortingMenu';
 import { useShoppingList } from './hooks/useShoppingList';
 import { useSearch } from './hooks/useSearch';
 
+//TODO: letöltés,feltöltés cisszajelzés, uj kategoira hozzáadásnál visszajelzés ha jó ha hibás, night mode
+
 export function App() {
 
 
   const [newCategoryType, setNewCategoryType] = useState("")
+    const { playSound, toggleMute, isMuted } = useSounds();
 
   const {
     items,
@@ -27,8 +30,10 @@ export function App() {
     toggleEditMode,
     updateItem,
     categoryTypes,
-    setCategoryTypes
-  } = useShoppingList();
+    setCategoryTypes,
+    downloadItems,
+    uploadItems
+  } = useShoppingList(playSound);
 
 
   const {
@@ -53,12 +58,12 @@ export function App() {
 
   } = useSearch(items, setItems)
 
-  const { toggleMute, isMuted } = useSounds();
+
 
 
   const [newName, setNewName] = useState("")
-  const [newPrice, setNewPrice] = useState(0)
-  const [newQuantity, setNewQuantity] = useState(0)
+  const [newPrice, setNewPrice] = useState(1000)
+  const [newQuantity, setNewQuantity] = useState(1)
   const [newCategory, setNewCategory] = useState(categoryTypes[0])
 
   const [updatedName, setupdatedName] = useState("")
@@ -109,6 +114,8 @@ export function App() {
       <TopMenu
         // Audio
         isMuted={isMuted}
+        downloadShoppingList={downloadItems}
+        uploadShoppingList={uploadItems}
         toggleMute={toggleMute}
 
         // Add Item
@@ -159,7 +166,7 @@ export function App() {
         )}
       </div>
 
-      <TotalBar isFiltered={isFiltered} filteredTotal={totalAmount(false)} grandTotal={totalAmount(true)} />
+      <TotalBar isFiltered={isFiltered} filteredTotal={totalAmount(true)} grandTotal={totalAmount(false)} />
 
     </div>
   );

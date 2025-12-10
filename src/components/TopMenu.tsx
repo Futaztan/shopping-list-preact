@@ -1,10 +1,11 @@
-import { Item } from "../types/Item";
 import { NumberInput } from "./ui/NumberInput";
-import {  TextInput } from "./ui/TextInput";
+import { TextInput } from "./ui/TextInput";
 
 type TopMenuProps = {
 
   toggleMute: () => void;
+  downloadShoppingList: () => void;
+  uploadShoppingList: (e: any) => void;
   isMuted: boolean;
   newName: string; setNewName: (val: string) => void
   newPrice: number; setNewPrice: (val: number) => void
@@ -22,39 +23,88 @@ type TopMenuProps = {
 
 };
 
-export function TopMenu({ toggleMute, isMuted, newName, newPrice, newQuantity, newCategory, setNewName, setNewPrice, setNewCategory, setNewQuantity,
+export function TopMenu({ toggleMute, downloadShoppingList, uploadShoppingList, isMuted, newName, newPrice, newQuantity, newCategory, setNewName, setNewPrice, setNewCategory, setNewQuantity,
   addItem, addCategory, categoryTypes, newCategoryType, setNewCategoryType, searchedText, setSearchedText, searchedAttribute, setSearchedAttribute,
   searchOperator, setSearchOperator, search
 }: TopMenuProps) {
   return (
     <div class="card form-card">
+      <input
+        type="file"
+        accept=".json"
+        id="file-upload-input"
+        style={{ display: "none" }}
+        onChange={uploadShoppingList}
+      />
+      <img onClick={downloadShoppingList} src="/icons/download.png" width="30px" height="30px" />
+      <img onClick={() => document.getElementById('file-upload-input').click()} src="/icons/upload.png" width="30px" height="30px" />
       <img onClick={toggleMute} src={isMuted ? "/icons/mute.png" : "icons/volume.png"} width="30px" height="30px" />
 
       <h2>Új elem hozzáadása</h2>
       <form onSubmit={(e) => addItem(newName, newPrice, newQuantity, newCategory, e)} class="add-form">
         <div class="row">
-          <TextInput value={newName} onChange={setNewName} placeholder='Termék neve' ></TextInput>
-          <NumberInput value={newPrice} onChange={(val) => setNewPrice(Number(val))} placeholder='Termék ára' ></NumberInput>
-          <NumberInput value={newQuantity} onChange={(val) => setNewQuantity(Number(val))} placeholder='Vásárlandó mennyiség' ></NumberInput>
-          <select name="category" value={newCategory} onChange={(e) => setNewCategory(e.currentTarget.value)} >
-            {categoryTypes.map(cat => {
-              return <option value={cat}>{cat}</option>
-            })}
 
-          </select>
-          <button type="submit" class="btn-primary">Hozzáadás (+)</button>
+
+          <div class="input-group">
+            <label>Termék neve</label>
+            <TextInput
+              value={newName}
+              onChange={setNewName}
+              placeholder='Termék neve'
+            />
+          </div>
+
+          <div class="input-group">
+            <label>Termék ára</label>
+            <NumberInput
+              value={newPrice}
+              minimum={1}
+              onChange={(val) => setNewPrice(Number(val))}
+              placeholder='Termék ára'
+            />
+          </div>
+
+          <div class="input-group">
+            <label>Vásárlandó mennyiség</label>
+            <NumberInput value={newQuantity} onChange={(val) => setNewQuantity(Number(val))} minimum={1} placeholder='Vásárlandó mennyiség' ></NumberInput>
+          </div>
+
+          <div class="input-group">
+            <label>Termék kategóriája</label>
+            <select name="category" value={newCategory} onChange={(e) => setNewCategory(e.currentTarget.value)} >
+              {categoryTypes.map(cat => {
+                return <option value={cat}>{cat}</option>
+              })}
+
+            </select>
+          </div>
+
+
+          <div class="input-group">
+            <label>&nbsp;</label>
+            <button type="submit" class="btn-primary">Hozzáadás (+)</button>
+          </div>
         </div>
 
       </form>
       <h2>Új kategória hozzáadása</h2>
       <form onSubmit={addCategory} class="add-form">
         <div class="row">
-          <TextInput value={newCategoryType} onChange={setNewCategoryType} placeholder='Kategória neve' ></TextInput>
 
-          <button type="submit" class="btn-primary">Hozzáadás (+)</button>
+          <div class="input-group">
+            <label>Új kategória neve:</label>
+            <TextInput value={newCategoryType} onChange={setNewCategoryType} placeholder='Kategória neve' ></TextInput>
+          </div>
+
+          <div class="input-group">
+            <label>&nbsp;</label>
+            <button type="submit" class="btn-primary">Hozzáadás (+)</button>
+          </div>
         </div>
 
-      </form>
+
+
+      </form >
 
       <h2>Keresés</h2>
       <div class="row">
@@ -76,9 +126,13 @@ export function TopMenu({ toggleMute, isMuted, newName, newPrice, newQuantity, n
           : null
         }
         <button onClick={() => search(searchedAttribute, searchedText)} class="btn-primary">Keresés</button>
+        <button onClick={() => {
+          setSearchedText("");
+          search(searchedAttribute, "");
+        }} class="btn-primary">Keresés törlése</button>
       </div>
 
 
-    </div>
+    </div >
   )
 }

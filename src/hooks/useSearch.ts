@@ -2,15 +2,14 @@ import { useState } from "preact/hooks";
 import { Item } from "../types/Item";
 
 
-export function useSearch(items : Item[],setItems: (value: Item[]) => void )
-{
-    const [searchedAttribute, setSearchedAttribute] = useState("Név")
-      const [searchedText, setSearchedText] = useState("")
-      const [searchOperator, setSearchOperator] = useState("=");
-    
-      const [isFiltered, setIsFiltered] = useState(false)
+export function useSearch(items: Item[], setItems: (value: Item[]) => void) {
+  const [searchedAttribute, setSearchedAttribute] = useState("Név")
+  const [searchedText, setSearchedText] = useState("")
+  const [searchOperator, setSearchOperator] = useState("=");
 
-      function search(attribute: string, input: string) {
+  const [isFiltered, setIsFiltered] = useState(false)
+
+  function search(attribute: string, input: string) {
 
     if (!input) setIsFiltered(false)
     else setIsFiltered(true)
@@ -96,16 +95,16 @@ export function useSearch(items : Item[],setItems: (value: Item[]) => void )
       default: throw new Error("error");
 
     }
-    
+
   }
   return {
-        searchedAttribute,
-        setSearchedAttribute,
-        searchedText,
-        setSearchedText,
-        searchOperator,
-        setSearchOperator,
-        isFiltered,
-        search
-    }
+    searchedAttribute,
+    setSearchedAttribute,
+    searchedText,
+    setSearchedText,
+    searchOperator,
+    setSearchOperator,
+    isFiltered,
+    search
+  }
 }
