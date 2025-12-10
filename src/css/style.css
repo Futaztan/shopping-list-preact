@@ -1,14 +1,38 @@
 :root {
-  /* FŐ VÁLTOZÁS: Kék helyett Lila */
-  --primary: #5e3072; /* Egy szép, modern lila */
-  --primary-hover: #3d1c4d; /* Sötétebb lila a gombok hover állapotához */
-  
-  /* Háttér: Enyhén szürkés, nem kékes */
-  --bg: #f3f3f3; 
-  
+  --primary: #5e3072;
+  /* Egy szép, modern lila */
+  --primary-hover: #3d1c4d;
+  /* Sötétebb lila a gombok hover állapotához */
+  --bg: #f3f3f3;
+  /* Világos háttér */
   --card-bg: #ffffff;
+  /* Fehér kártyák */
   --text: #333;
-  --gray-light: #e0e0e0; /* Gomboknak és inaktív elemeknek */
+  /* Sötét szöveg */
+  --gray-light: #e0e0e0;
+  --input-bg: #2b2a33;
+  /* Input mező háttere */
+  --border-color: #ccc;
+  --input-text: #FFFFFF
+  
+}
+
+/* SÖTÉT TÉMA (Dark Mode) */
+body.dark-mode {
+  --primary: #9b59b6;
+  /* Kicsit világosabb lila, hogy sötéten jobban látszódjon */
+  --primary-hover: #af7ac5;
+  --bg: #121212;
+  /* Majdnem fekete háttér */
+  --card-bg: #1e1e1e;
+  /* Sötétszürke kártyák */
+  --text: #e0e0e0;
+  /* Világos szöveg */
+  --gray-light: #333333;
+  /* Sötét gombok */
+  --input-bg: #2d2d2d;
+  /* Sötét input mezők */
+  --border-color: #444;
 }
 
 body {
@@ -29,7 +53,8 @@ img {
 
 h1 {
   text-align: center;
-  color: var(--primary); /* Lila cím */
+  color: var(--primary);
+  /* Lila cím */
 }
 
 .card {
@@ -57,8 +82,11 @@ h1 {
 
 input,
 select {
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid var(--border-color);
   padding: 10px;
-  border: 1px solid #ccc; /* Kicsit semlegesebb szürke keret */
+  /*border: 1px solid #ccc; /* Kicsit semlegesebb szürke keret */
   border-radius: 6px;
   flex: 1;
 }
@@ -74,16 +102,21 @@ select {
   font-weight: bold;
   transition: background-color 0.2s;
 }
-h2{
+
+h2 {
   text-align: center;
   padding-top: 12px;
 }
-img{
+
+img {
   padding-left: 20px;
 }
+
 .btn-primary:hover {
-  background-color: var(--primary-hover); /* Sötétebb lila hoverkor */
-  opacity: 1; /* Opacity helyett színátmenet szebb */
+  background-color: var(--primary-hover);
+  /* Sötétebb lila hoverkor */
+  opacity: 1;
+  /* Opacity helyett színátmenet szebb */
 }
 
 /* List Styles */
@@ -103,14 +136,17 @@ img{
   gap: 15px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   transition: all 0.2s;
-  border-left: 5px solid var(--primary); /* Egy kis lila díszítés a kártyák szélén */
+  border-left: 5px solid var(--primary);
+  /* Egy kis lila díszítés a kártyák szélén */
 }
 
 /* Ha meg van véve - Zöld helyett SZÜRKE a témához */
 .item-card.purchased {
-  background-color: #f0f0f0; /* Szürke háttér */
+  background-color: #f0f0f0;
+  /* Szürke háttér */
   opacity: 0.6;
-  border-left-color: #999; /* A csík is szürke lesz */
+  border-left-color: #999;
+  /* A csík is szürke lesz */
 }
 
 .item-card.purchased .item-name {
@@ -122,7 +158,8 @@ img{
   width: 20px;
   height: 20px;
   cursor: pointer;
-  accent-color: var(--primary); /* A pipa színe is lila legyen */
+  accent-color: var(--primary);
+  /* A pipa színe is lila legyen */
 }
 
 .item-details {
@@ -143,7 +180,8 @@ img{
 
 .item-price {
   font-weight: bold;
-  color: var(--primary); /* Az ár is lila */
+  color: var(--primary);
+  /* Az ár is lila */
 }
 
 .actions {
@@ -163,12 +201,14 @@ img{
 
 .btn-delete:hover {
   transform: scale(1.2);
-  color: #c0392b; /* Kicsit sötétebb piros */
+  color: #c0392b;
+  /* Kicsit sötétebb piros */
 }
 
 .btn-edit:hover {
   transform: scale(1.2);
-  color: var(--primary); /* Narancs helyett lila az edit */
+  color: var(--primary);
+  /* Narancs helyett lila az edit */
 }
 
 .hidden {
@@ -181,7 +221,8 @@ img{
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: #2c3e50; /* Sötétszürke/Kékesfekete sáv */
+  background-color: #2c3e50;
+  /* Sötétszürke/Kékesfekete sáv */
   color: white;
   padding: 15px 30px;
   border-radius: 50px;
@@ -189,12 +230,13 @@ img{
   gap: 20px;
   font-size: 1.2rem;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  z-index: 100; /* Hogy biztosan minden felett legyen */
+  z-index: 100;
+  /* Hogy biztosan minden felett legyen */
 }
 
 .total-price {
-font-weight: bold;
-color: #4cd137;
+  font-weight: bold;
+  color: #4cd137;
 }
 
 /* Header Row (Rendezés gombok) */
@@ -206,37 +248,40 @@ color: #4cd137;
 }
 
 .header-row button {
-flex: 1;
+  flex: 1;
 
 
-/* Egy kis szépítés (opcionális) */
-padding: 10px;
-cursor: pointer;
+  /* Egy kis szépítés (opcionális) */
+  padding: 10px;
+  cursor: pointer;
 
-border: none;
-border-radius: 6px;
-font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
 
-/* Szöveg középre igazítása a gombon belül */
-display: flex;
-justify-content: center;
-align-items: center;
+  /* Szöveg középre igazítása a gombon belül */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .header-row button:hover {
-background-color: #141111;
-/* Kicsit sötétebb, ha ráviszed az egeret */
+  background-color: #141111;
+  /* Kicsit sötétebb, ha ráviszed az egeret */
 }
+
 /* Egymás alá rendezi a címkét és a mezőt */
 .input-group {
   display: flex;
-  flex-direction: column; 
-  margin-right: 10px; /* Távolság a szomszédos mezőtől */
+  flex-direction: column;
+  margin-right: 10px;
+  /* Távolság a szomszédos mezőtől */
   margin-bottom: 10px;
 }
 
 .input-group label {
   font-size: 0.9rem;
-  margin-bottom: 5px; /* Kis hely a felirat és a mező között */
+  margin-bottom: 5px;
+  /* Kis hely a felirat és a mező között */
   font-weight: bold;
 }

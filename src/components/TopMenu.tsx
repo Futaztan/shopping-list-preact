@@ -19,14 +19,17 @@ type TopMenuProps = {
   searchedAttribute: string; setSearchedAttribute: (val: string) => void
   searchOperator: string; setSearchOperator: (val: string) => void
   search: (attribute: string, input: string) => void
+  isDarkMode: boolean;
+  toggleTheme: () => void;
 
 
 };
 
 export function TopMenu({ toggleMute, downloadShoppingList, uploadShoppingList, isMuted, newName, newPrice, newQuantity, newCategory, setNewName, setNewPrice, setNewCategory, setNewQuantity,
   addItem, addCategory, categoryTypes, newCategoryType, setNewCategoryType, searchedText, setSearchedText, searchedAttribute, setSearchedAttribute,
-  searchOperator, setSearchOperator, search
+  searchOperator, setSearchOperator, search, isDarkMode, toggleTheme
 }: TopMenuProps) {
+  //TODO
   return (
     <div class="card form-card">
       <input
@@ -36,9 +39,10 @@ export function TopMenu({ toggleMute, downloadShoppingList, uploadShoppingList, 
         style={{ display: "none" }}
         onChange={uploadShoppingList}
       />
-      <img onClick={downloadShoppingList} src="/icons/download.png" width="30px" height="30px" />
-      <img onClick={() => document.getElementById('file-upload-input').click()} src="/icons/upload.png" width="30px" height="30px" />
-      <img onClick={toggleMute} src={isMuted ? "/icons/mute.png" : "icons/volume.png"} width="30px" height="30px" />
+      <img onClick={toggleTheme} src="/icons/download.png" width="30px" height="30px"/>
+      <img onClick={downloadShoppingList} src={isDarkMode? "/icons/download-white.png" : "/icons/download.png"} width="30px" height="30px" />
+      <img onClick={() => document.getElementById('file-upload-input').click()} src={ isDarkMode? "/icons/upload-white.png" : "/icons/upload.png"} width="30px" height="30px" />
+      <img onClick={toggleMute} src={isMuted ? "/icons/mute.png" : isDarkMode ? "icons/volume-white.png" : "icons/volume.png"} width="30px" height="30px" />
 
       <h2>Új elem hozzáadása</h2>
       <form onSubmit={(e) => addItem(newName, newPrice, newQuantity, newCategory, e)} class="add-form">

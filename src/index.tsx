@@ -12,6 +12,7 @@ import { TopMenu } from './components/TopMenu';
 import { SortingMenu } from './components/SortingMenu';
 import { useShoppingList } from './hooks/useShoppingList';
 import { useSearch } from './hooks/useSearch';
+import { useTheme } from './hooks/useTheme';
 
 //TODO: letöltés,feltöltés cisszajelzés, uj kategoira hozzáadásnál visszajelzés ha jó ha hibás, night mode
 
@@ -58,7 +59,7 @@ export function App() {
 
   } = useSearch(items, setItems)
 
-
+  const {isDarkMode, toggleTheme} = useTheme()
 
 
   const [newName, setNewName] = useState("")
@@ -113,6 +114,8 @@ export function App() {
 
       <TopMenu
         // Audio
+        isDarkMode={isDarkMode}
+        toggleTheme={toggleTheme}
         isMuted={isMuted}
         downloadShoppingList={downloadItems}
         uploadShoppingList={uploadItems}
