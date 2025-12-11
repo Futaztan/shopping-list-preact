@@ -285,3 +285,36 @@ img {
   /* Kis hely a felirat és a mező között */
   font-weight: bold;
 }
+/* Toast Notification */
+.toast-container {
+  position: fixed;
+  bottom: 30px;
+  right: 30px; /* Jobb alul jelenik meg */
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toast {
+  padding: 12px 20px;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  min-width: 250px;
+  animation: slideIn 0.3s ease-out;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Különböző típusok színei */
+.toast.success { background-color: #2ecc71; } /* Zöld */
+.toast.error { background-color: #e74c3c; }   /* Piros */
+.toast.info { background-color: #3498db; }    /* Kék */
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}

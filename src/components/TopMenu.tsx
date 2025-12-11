@@ -29,7 +29,7 @@ export function TopMenu({ toggleMute, downloadShoppingList, uploadShoppingList, 
   addItem, addCategory, categoryTypes, newCategoryType, setNewCategoryType, searchedText, setSearchedText, searchedAttribute, setSearchedAttribute,
   searchOperator, setSearchOperator, search, isDarkMode, toggleTheme
 }: TopMenuProps) {
-  //TODO
+  
   return (
     <div class="card form-card">
       <input
@@ -39,7 +39,7 @@ export function TopMenu({ toggleMute, downloadShoppingList, uploadShoppingList, 
         style={{ display: "none" }}
         onChange={uploadShoppingList}
       />
-      <img onClick={toggleTheme} src="/icons/download.png" width="30px" height="30px"/>
+      <img onClick={toggleTheme} src={isDarkMode ? "/icons/day-mode.png" : "/icons/dark-mode.png"} width="30px" height="30px"/>
       <img onClick={downloadShoppingList} src={isDarkMode? "/icons/download-white.png" : "/icons/download.png"} width="30px" height="30px" />
       <img onClick={() => document.getElementById('file-upload-input').click()} src={ isDarkMode? "/icons/upload-white.png" : "/icons/upload.png"} width="30px" height="30px" />
       <img onClick={toggleMute} src={isMuted ? "/icons/mute.png" : isDarkMode ? "icons/volume-white.png" : "icons/volume.png"} width="30px" height="30px" />

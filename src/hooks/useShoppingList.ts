@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'preact/hooks';
 import { Item } from '../types/Item';
 import { SoundType } from './useSounds';
+import { ToastType } from '../types/Toast';
 
 
-export function useShoppingList(playSound: (type: SoundType) => void) {
+export function useShoppingList(playSound: (type: SoundType) => void, onSuccess: (msg: string, type: ToastType) => void) {
 
     const [categoryTypes, setCategoryTypes] = useState(() => {
         const saved = localStorage.getItem("shopping-list-category")
@@ -56,6 +57,7 @@ export function useShoppingList(playSound: (type: SoundType) => void) {
             name: newName, price: newPrice, quantity: newQuantity, category: newCategory, id: Date.now(), purchased: false, edited: false, hidden: false
         }
         setItems([...items, newItem])
+        onSuccess("Sikeres termék felvétel!", "success")
         playSound(SoundType.ADD);
     }
 
@@ -92,31 +94,28 @@ export function useShoppingList(playSound: (type: SoundType) => void) {
                 return { ...item, ...updatedData, edited: false }
             return item
         })
+
         setItems(newlist)
+        onSuccess("Sikeres termék módosítás!", "success")
     }
     function downloadItems() {
-        // 1. Átkonvertáljuk az items tömböt szöveggé (a null, 2 miatt szépen formázott lesz)
         const cleanItem = items.map(({ edited, hidden, ...keep }) => keep);
         const jsonString = JSON.stringify(cleanItem, null, 2);
 
-        // 2. Létrehozunk egy Blob-ot (Binary Large Object)
         const blob = new Blob([jsonString], { type: "application/json" });
-
-        // 3. Létrehozunk egy ideiglenes URL-t, ami erre a blobra mutat
         const url = URL.createObjectURL(blob);
 
-        // 4. Létrehozunk egy láthatatlan link elemet
         const link = document.createElement('a');
         link.href = url;
-        link.download = "bevasarlolista.json"; // Ez lesz a fájl neve
+        link.download = "bevasarlolista.json";
 
-        // 5. Hozzáadjuk a dokumentumhoz, rákattintunk, majd töröljük
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
 
-        // 6. Takarítás: felszabadítjuk az URL-t
         URL.revokeObjectURL(url);
+        onSuccess("Sikeres letöltés!", "success")
+
     }
 
     function uploadItems(e) {
@@ -130,27 +129,27 @@ export function useShoppingList(playSound: (type: SoundType) => void) {
                 try {
                     if (!event.target?.result) return;
 
-                    // 1. Szöveg átalakítása objektummá
+
                     const parsedData = JSON.parse(event.target.result as string);
 
-                    // Ellenőrzés: biztos, hogy tömböt kaptunk?
+
                     if (!Array.isArray(parsedData)) {
                         alert("Hibás fájlformátum! (Nem lista)");
                         return;
                     }
 
-                    // 2. ADATOK HELYREÁLLÍTÁSA (A hiányzó mezők visszapótlása)
+
                     const restoredItems: Item[] = parsedData.map((item) => ({
-                        ...item,          // Megtartjuk a nevet, árat, id-t, stb.
-                        edited: false,    // Visszatesszük az alapértelmezett értéket
-                        hidden: false     // Visszatesszük ezt is
+                        ...item,
+                        edited: false,
+                        hidden: false
                     }));
 
-                    // 3. Lista felülírása az új adatokkal
-                    setItems(restoredItems);
 
-                    // Opcionális: sikeres visszajelzés
-                    // alert("Sikeres betöltés!");
+                    setItems(restoredItems);
+                    onSuccess("Sikeres betöltés!", "success")
+
+
 
                 } catch (error) {
                     console.error(error);

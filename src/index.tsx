@@ -13,14 +13,16 @@ import { SortingMenu } from './components/SortingMenu';
 import { useShoppingList } from './hooks/useShoppingList';
 import { useSearch } from './hooks/useSearch';
 import { useTheme } from './hooks/useTheme';
+import { useToast } from './hooks/setToast';
 
-//TODO: letöltés,feltöltés cisszajelzés, uj kategoira hozzáadásnál visszajelzés ha jó ha hibás, night mode
+
 
 export function App() {
 
 
-  const [newCategoryType, setNewCategoryType] = useState("")
-    const { playSound, toggleMute, isMuted } = useSounds();
+  const [newCategoryType, setNewCategoryType] = useState("");
+  const { showToast, ToastContainer } = useToast();
+  const { playSound, toggleMute, isMuted } = useSounds();
 
   const {
     items,
@@ -34,7 +36,7 @@ export function App() {
     setCategoryTypes,
     downloadItems,
     uploadItems
-  } = useShoppingList(playSound);
+  } = useShoppingList(playSound,showToast);
 
 
   const {
@@ -59,7 +61,7 @@ export function App() {
 
   } = useSearch(items, setItems)
 
-  const {isDarkMode, toggleTheme} = useTheme()
+  const { isDarkMode, toggleTheme } = useTheme()
 
 
   const [newName, setNewName] = useState("")
@@ -75,8 +77,12 @@ export function App() {
 
   function addCategory(e) {
     e.preventDefault();
-    if (!newCategoryType || categoryTypes.includes(newCategoryType)) return;
+    if (!newCategoryType || categoryTypes.includes(newCategoryType)) {
+      showToast("Ez a kategória már létezik!", "error");
+      return
+    }
     setCategoryTypes([...categoryTypes, newCategoryType])
+    showToast("Sikeres kategória felvétel!","success")
 
   }
 
@@ -110,10 +116,10 @@ export function App() {
 
     <div class="container">
 
-      <h1>🛒 Bevásárlólista</h1>
+      <h1>Bevásárlólista</h1>
 
       <TopMenu
-        // Audio
+        
         isDarkMode={isDarkMode}
         toggleTheme={toggleTheme}
         isMuted={isMuted}
@@ -121,7 +127,6 @@ export function App() {
         uploadShoppingList={uploadItems}
         toggleMute={toggleMute}
 
-        // Add Item
         newName={newName} setNewName={setNewName}
         newPrice={newPrice} setNewPrice={setNewPrice}
         newQuantity={newQuantity} setNewQuantity={setNewQuantity}
@@ -129,11 +134,9 @@ export function App() {
         categoryTypes={categoryTypes}
         addItem={addItem}
 
-        // Add Category
         newCategoryType={newCategoryType} setNewCategoryType={setNewCategoryType}
         addCategory={addCategory}
-
-        // Search
+     
         searchedText={searchedText} setSearchedText={setSearchedText}
         searchedAttribute={searchedAttribute} setSearchedAttribute={setSearchedAttribute}
         searchOperator={searchOperator} setSearchOperator={setSearchOperator}
@@ -170,6 +173,7 @@ export function App() {
       </div>
 
       <TotalBar isFiltered={isFiltered} filteredTotal={totalAmount(true)} grandTotal={totalAmount(false)} />
+      <ToastContainer />
 
     </div>
   );
