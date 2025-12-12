@@ -76,9 +76,9 @@ export function useSorting(items: Item[], setItems: (items: Item[]) => void) {
         resetSort();
     }
 
- 
+
     return {
-        sortedState,      
+        sortedState,
         sortByPurchased,
         sortByName,
         sortByPrice,

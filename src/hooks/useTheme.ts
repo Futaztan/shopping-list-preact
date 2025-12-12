@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'preact/hooks';
 
 export function useTheme() {
-    
+
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const saved = localStorage.getItem('theme');
     if (saved) {
@@ -20,8 +20,7 @@ export function useTheme() {
     }
   }, [isDarkMode]);
 
-  function toggleTheme()
-  {
+  function toggleTheme() {
     setIsDarkMode(!isDarkMode)
   }
 

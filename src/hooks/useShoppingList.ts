@@ -4,7 +4,7 @@ import { SoundType } from './useSounds';
 import { ToastType } from '../types/Toast';
 
 
-export function useShoppingList(playSound: (type: SoundType) => void, onSuccess: (msg: string, type: ToastType) => void) {
+export function useShoppingList(playSound: (type: SoundType) => void, showToast: (msg: string, type: ToastType) => void) {
 
     const [categoryTypes, setCategoryTypes] = useState(() => {
         const saved = localStorage.getItem("shopping-list-category")
@@ -49,15 +49,25 @@ export function useShoppingList(playSound: (type: SoundType) => void, onSuccess:
         localStorage.setItem("shopping-list-category", JSON.stringify(categoryTypes));
     }, [categoryTypes]);
 
+    function addCategory(newCategoryName: string) {
 
-    function addItem(newName: string, newPrice: number, newQuantity: number, newCategory: string, e: SubmitEvent) {
-        e.preventDefault();
-        if (!newName || !newPrice) return;
+        if (!newCategoryName || categoryTypes.includes(newCategoryName)) {
+            showToast("Ez a kategória már létezik!", "error");
+            return
+        }
+        setCategoryTypes([...categoryTypes, newCategoryName])
+        showToast("Sikeres kategória felvétel!", "success")
+
+    }
+
+    function addItem(newName: string, newPrice: number, newQuantity: number, newCategory: string) {
+
+
         const newItem: Item = {
             name: newName, price: newPrice, quantity: newQuantity, category: newCategory, id: Date.now(), purchased: false, edited: false, hidden: false
         }
         setItems([...items, newItem])
-        onSuccess("Sikeres termék felvétel!", "success")
+        showToast("Sikeres termék felvétel!", "success")
         playSound(SoundType.ADD);
     }
 
@@ -96,7 +106,7 @@ export function useShoppingList(playSound: (type: SoundType) => void, onSuccess:
         })
 
         setItems(newlist)
-        onSuccess("Sikeres termék módosítás!", "success")
+        showToast("Sikeres termék módosítás!", "success")
     }
     function downloadItems() {
         const cleanItem = items.map(({ edited, hidden, ...keep }) => keep);
@@ -114,7 +124,7 @@ export function useShoppingList(playSound: (type: SoundType) => void, onSuccess:
         document.body.removeChild(link);
 
         URL.revokeObjectURL(url);
-        onSuccess("Sikeres letöltés!", "success")
+        showToast("Sikeres letöltés!", "success")
 
     }
 
@@ -147,7 +157,7 @@ export function useShoppingList(playSound: (type: SoundType) => void, onSuccess:
 
 
                     setItems(restoredItems);
-                    onSuccess("Sikeres betöltés!", "success")
+                    showToast("Sikeres betöltés!", "success")
 
 
 
@@ -168,6 +178,7 @@ export function useShoppingList(playSound: (type: SoundType) => void, onSuccess:
         toggleEditMode,
         updateItem,
         categoryTypes,
+        addCategory,
         setCategoryTypes,
         downloadItems,
         uploadItems

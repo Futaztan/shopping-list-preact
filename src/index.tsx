@@ -1,28 +1,33 @@
 import { render } from 'preact';
-import { useState } from "preact/hooks";
+import { useMemo, useState } from "preact/hooks";
 
 import './css/style.css';
 import { Item } from './types/Item';
-import { ItemRow } from './components/ItemRow';
-import { EditItemRow } from './components/EditItemRow';
-import { TotalBar } from './components/TotalBar';
+import { ItemRow } from './components/list/ItemRow';
+import { EditItemRow } from './components/list/EditItemRow';
+import { TotalBar } from './components/footer/TotalBar';
 import { useSorting } from './hooks/useSorting';
 import { useSounds } from './hooks/useSounds';
-import { TopMenu } from './components/TopMenu';
-import { SortingMenu } from './components/SortingMenu';
+import { TopMenu } from './components/header/TopMenu';
+import { Title } from './components/header/Title';
+import { SortingMenu } from './components/list/SortingMenu';
 import { useShoppingList } from './hooks/useShoppingList';
-import { useSearch } from './hooks/useSearch';
-import { useTheme } from './hooks/useTheme';
 import { useToast } from './hooks/setToast';
-
+import { PageFooter } from './components/footer/PageFooter';
+import { EmptyListMessage } from './components/list/EmptyListMessage';
 
 
 export function App() {
 
 
-  const [newCategoryType, setNewCategoryType] = useState("");
+  const [searchParams, setSearchParams] = useState({
+    text: "",
+    attribute: "Név",
+    operator: "="
+  });
   const { showToast, ToastContainer } = useToast();
   const { playSound, toggleMute, isMuted } = useSounds();
+
 
   const {
     items,
@@ -32,42 +37,52 @@ export function App() {
     togglePurchased,
     toggleEditMode,
     updateItem,
+    addCategory,
     categoryTypes,
-    setCategoryTypes,
+
     downloadItems,
     uploadItems
-  } = useShoppingList(playSound,showToast);
+  } = useShoppingList(playSound, showToast);
 
 
-  const {
-    sortedState,
-    sortByPurchased,
-    sortByName,
-    sortByPrice,
-    sortByCategory,
-    sortBySumPrice
-  } = useSorting(items, setItems);
+  const filteredItems = useMemo(() => {
 
-  const {
-    searchedAttribute,
-    setSearchedAttribute,
-    searchedText,
-    setSearchedText,
-    searchOperator,
-    setSearchOperator,
-    isFiltered,
-    search
+    if (!searchParams.text) return items;
 
+    const inputNumber = Number(searchParams.text);
+    const inputText = searchParams.text.toLowerCase();
 
-  } = useSearch(items, setItems)
+    return items.filter(item => {
+      switch (searchParams.attribute) {
+        case "Név":
+          return item.name.toLowerCase().includes(inputText);
 
-  const { isDarkMode, toggleTheme } = useTheme()
+        case "Kategória":
+          return item.category.toLowerCase().includes(inputText);
 
+        case "Egységár":
+          switch (searchParams.operator) {
+            case "<": return item.price < inputNumber;
+            case ">": return item.price > inputNumber;
+            default: return item.price === inputNumber;
+          }
 
-  const [newName, setNewName] = useState("")
-  const [newPrice, setNewPrice] = useState(1000)
-  const [newQuantity, setNewQuantity] = useState(1)
-  const [newCategory, setNewCategory] = useState(categoryTypes[0])
+        case "Ár": // Összesített ár
+          const total = item.price * item.quantity;
+          switch (searchParams.operator) {
+            case "<": return total < inputNumber;
+            case ">": return total > inputNumber;
+            default: return total === inputNumber;
+          }
+
+        default: return true;
+      }
+    });
+  }, [items, searchParams]); 
+
+  const handleSearch = (attribute: string, text: string, operator: string) => {
+    setSearchParams({ attribute, text, operator });
+  };
 
   const [updatedName, setupdatedName] = useState("")
   const [updatedPrice, setupdatedPrice] = useState(0)
@@ -75,30 +90,21 @@ export function App() {
   const [updatedCategory, setupdatedCategory] = useState(categoryTypes[0])
 
 
-  function addCategory(e) {
-    e.preventDefault();
-    if (!newCategoryType || categoryTypes.includes(newCategoryType)) {
-      showToast("Ez a kategória már létezik!", "error");
-      return
-    }
-    setCategoryTypes([...categoryTypes, newCategoryType])
-    showToast("Sikeres kategória felvétel!","success")
-
-  }
-
-
   function totalAmount(onlyVisibleItems: boolean): number {
     let sum: number = 0
-    items.forEach(item => {
+    if (onlyVisibleItems) {
+      filteredItems.forEach(item => {
 
-      if (onlyVisibleItems) {
-        if (!item.hidden) {
-          sum += item.price * item.quantity
-        }
-      }
-      else sum += item.price * item.quantity
+        sum += item.price * item.quantity
 
-    });
+      });
+    }
+    else {
+      items.forEach(item => {
+
+        sum += item.price * item.quantity
+      });
+    }
     return sum
   }
 
@@ -116,50 +122,33 @@ export function App() {
 
     <div class="container">
 
-      <h1>Bevásárlólista</h1>
+      <Title />
 
       <TopMenu
-        
-        isDarkMode={isDarkMode}
-        toggleTheme={toggleTheme}
+
         isMuted={isMuted}
         downloadShoppingList={downloadItems}
         uploadShoppingList={uploadItems}
         toggleMute={toggleMute}
-
-        newName={newName} setNewName={setNewName}
-        newPrice={newPrice} setNewPrice={setNewPrice}
-        newQuantity={newQuantity} setNewQuantity={setNewQuantity}
-        newCategory={newCategory} setNewCategory={setNewCategory}
         categoryTypes={categoryTypes}
         addItem={addItem}
-
-        newCategoryType={newCategoryType} setNewCategoryType={setNewCategoryType}
         addCategory={addCategory}
-     
-        searchedText={searchedText} setSearchedText={setSearchedText}
-        searchedAttribute={searchedAttribute} setSearchedAttribute={setSearchedAttribute}
-        searchOperator={searchOperator} setSearchOperator={setSearchOperator}
-        search={search}
+        onSearch={handleSearch}
       />
 
 
 
       <div class="list-container">
-        {items.length === 0 ? <h1 class="empty-msg">A lista üres.</h1> :
+        {items.length === 0 ?<EmptyListMessage /> :
           <SortingMenu
-            onSortByPurchased={sortByPurchased}
-            onSortByName={sortByName}
-            onSortByCategory={sortByCategory}
-            onSortByPrice={sortByPrice}
-            onSortBySumPrice={sortBySumPrice}
-            sortedState={sortedState}
+            items={items}
+            setItems={setItems}
           />
         }
 
 
 
-        {items.map((item) => {
+        {filteredItems.map((item) => {
           return item.edited ?
             <EditItemRow item={item} updatedName={updatedName} setUpdatedName={setupdatedName}
               updatedPrice={updatedPrice} setUpdatedPrice={setupdatedPrice}
@@ -170,10 +159,14 @@ export function App() {
             <ItemRow key={item.id} item={item} onTogglePurchased={togglePurchased} onStartEditing={startEditing} onDelete={deleteItem} />
         }
         )}
+      <PageFooter />
       </div>
-
-      <TotalBar isFiltered={isFiltered} filteredTotal={totalAmount(true)} grandTotal={totalAmount(false)} />
+        
+      <TotalBar isFiltered={filteredItems.length !== items.length} filteredTotal={totalAmount(true)} grandTotal={totalAmount(false)} />
+      
+      
       <ToastContainer />
+    
 
     </div>
   );

@@ -1,7 +1,7 @@
 
-import { Item } from "../types/Item";
-import { NumberInput } from "./ui/NumberInput";
-import {  TextInput } from "./ui/TextInput";
+import { Item } from "../../types/Item";
+import { NumberInput } from "../ui/NumberInput";
+import { TextInput } from "../ui/TextInput";
 
 type EditItemRowProps = {
   item: Item;
@@ -18,7 +18,22 @@ type EditItemRowProps = {
 };
 
 
-
+/**
+ * Ha módosítunk egy elemet akkor annak az értékei egy formba kerül és az inputon belül jelennek meg az adatok
+ *
+ * @param item - Módosítandó elem
+ * @param updatedName - Módosítandó elem név hook
+ * @param setUpdatedName -  Módosítandó elem név hook
+ * @param updatedPrice - Módosítandó elem ár hook
+ * @param setUpdatedPrice - Módosítandó elem ár hook
+ * @param updatedQuantity -  Módosítandó elem mennyiség hook
+ * @param setUpdatedQuantity -  Módosítandó elem mennyiség hook
+ * @param updatedCategory -  Módosítandó elem kategória hook
+ * @param setUpdatedCategory -  Módosítandó elem kategória hook
+ * @param categoryTypes -  kategória típusok
+ * @param onSave -  Mentés függvény
+ * @returns Edit form html kódja
+ */
 export function EditItemRow({ item, updatedName, setUpdatedName, updatedPrice, setUpdatedPrice, updatedQuantity, setUpdatedQuantity, updatedCategory, setUpdatedCategory, categoryTypes, onSave }: EditItemRowProps) {
   return (
     <div class="card form-card">
